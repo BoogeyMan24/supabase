@@ -1678,8 +1678,6 @@ export interface paths {
     }
     /** Gets the given organization's tax ID */
     get: operations['TaxIdsController_getTaxId']
-    /** Gets the given organization's tax ID */
-    get: operations['TaxIdsController_getTaxId']
     /** Creates or updates a tax ID for the given organization */
     put: operations['TaxIdsController_updateTaxId']
     post?: never
@@ -16501,8 +16499,6 @@ export interface operations {
     }
   }
   TaxIdsController_getTaxId: {
-  /** Gets the given organization's tax ID */
-  TaxIdsController_getTaxId: {
     parameters: {
       query?: never
       header?: never
@@ -16528,7 +16524,6 @@ export interface operations {
         }
         content?: never
       }
-      /** @description Failed to retrieve the organization's tax ID */
       /** @description Failed to retrieve the organization's tax ID */
       500: {
         headers: {
@@ -16559,7 +16554,6 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['TaxIdResponse']
           'application/json': components['schemas']['TaxIdResponse']
         }
       }
