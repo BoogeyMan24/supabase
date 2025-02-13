@@ -4626,7 +4626,11 @@ export interface paths {
      * @description Returns all functions you've previously added to the specified project.
      */
     get: operations['v1-list-all-functions']
-    put?: never
+    /**
+     * Bulk update functions
+     * @description Bulk update functions. It will create a new function or replace existing. The operation is idempotent. NOTE: You will need to manually bump the version.
+     */
+    put: operations['v1-bulk-update-functions']
     /**
      * Create a function
      * @description Creates a function and adds it to the specified project.
@@ -4711,6 +4715,57 @@ export interface paths {
     /** Updates a project's health status. */
     put: operations['HealthReportingController_updateStatus']
     post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/projects/{ref}/pause': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Pauses a project */
+    post: operations['SystemProjectPauseController_pauseProject']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/projects/{ref}/pause/validate': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Validates if a project can be paused */
+    get: operations['SystemProjectPauseController_validatePauseProject']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/projects/{ref}/restart': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Restart project database [System API] */
+    post: operations['SystemRestartController_restartProject']
     delete?: never
     options?: never
     head?: never
@@ -7618,7 +7673,11 @@ export interface paths {
      * @description Returns all functions you've previously added to the specified project.
      */
     get: operations['v1-list-all-functions']
-    put?: never
+    /**
+     * Bulk update functions
+     * @description Bulk update functions. It will create a new function or replace existing. The operation is idempotent. NOTE: You will need to manually bump the version.
+     */
+    put: operations['v1-bulk-update-functions']
     /**
      * Create a function
      * @description Creates a function and adds it to the specified project.
@@ -8499,7 +8558,7 @@ export interface components {
       walg_enabled: boolean
     }
     BillingCustomerUpdateBody: {
-      additional_emails?: string[] | undefined
+      additional_emails: string[]
       address?: components['schemas']['CustomerBillingAddress']
     }
     /** @enum {string} */
@@ -8586,6 +8645,23 @@ export interface components {
     Buffer: Record<string, never>
     BulkDeleteUserContentResponse: {
       id: string
+    }
+    BulkUpdateFunctionBody: {
+      /** Format: int64 */
+      created_at?: number
+      entrypoint_path?: string
+      id: string
+      import_map?: boolean
+      import_map_path?: string
+      name: string
+      slug: string
+      /** @enum {string} */
+      status: 'ACTIVE' | 'REMOVED' | 'THROTTLED'
+      verify_jwt?: boolean
+      version: number
+    }
+    BulkUpdateFunctionResponse: {
+      functions: components['schemas']['FunctionResponse'][]
     }
     CfResponse: {
       errors: Record<string, never>[]
@@ -8790,6 +8866,9 @@ export interface components {
     CreateOrganizationV1Dto: {
       name: string
     }
+    CreatePipelineResponse: {
+      id: number
+    }
     CreatePolicyBody: {
       /** @enum {string} */
       action?: 'PERMISSIVE' | 'RESTRICTIVE'
@@ -8916,6 +8995,9 @@ export interface components {
        */
       name: string
       value: string
+    }
+    CreateSinkResponse: {
+      id: number
     }
     CreateSourceResponse: {
       id: number
@@ -9226,6 +9308,23 @@ export interface components {
     DeleteVercelConnectionResponse: {
       id: string
     }
+    DeployFunctionResponse: {
+      compute_multiplier?: number
+      /** Format: int64 */
+      created_at?: number
+      entrypoint_path?: string
+      id: string
+      import_map?: boolean
+      import_map_path?: string
+      name: string
+      slug: string
+      /** @enum {string} */
+      status: 'ACTIVE' | 'REMOVED' | 'THROTTLED'
+      /** Format: int64 */
+      updated_at?: number
+      verify_jwt?: boolean
+      version: number
+    }
     /**
      * @description Desired instance size, will use default size if not defined. Paid Plans only.
      * @enum {string}
@@ -9399,14 +9498,15 @@ export interface components {
       query: string
     }
     FunctionDeployBody: {
-      file: Record<string, never>[]
-      metadata: {
-        entrypoint_path?: string
-        import_map_path?: string
-        name?: string
-        static_patterns?: string[]
-        verify_jwt?: boolean
-      }
+      file: string[]
+      metadata: components['schemas']['FunctionDeployMetadata']
+    }
+    FunctionDeployMetadata: {
+      entrypoint_path: string
+      import_map_path?: string
+      name?: string
+      static_patterns?: string[]
+      verify_jwt?: boolean
     }
     FunctionResponse: {
       compute_multiplier?: number
@@ -10352,6 +10452,9 @@ export interface components {
         score?: number
       }
     }
+    PauseProjectResponseDto: {
+      message: string
+    }
     PauseStatusResponse: {
       can_restore: boolean
       latest_downloadable_backup_id: number | null
@@ -11213,7 +11316,7 @@ export interface components {
        */
       supabase_org_id: string
     }
-    RestartProjectInfo: {
+    RestartProjectBodyDto: {
       database_identifier?: string
     }
     RestartServiceRequest: {
@@ -12299,6 +12402,7 @@ export interface components {
       ids: string[]
     }
     UpdateOrganizationBodyDto: {
+      additional_billing_emails?: string[]
       /** Format: email */
       billing_email?: string
       name?: string
@@ -12922,6 +13026,9 @@ export interface components {
     ValidateEmailBodyDto: {
       /** Format: email */
       email: string
+    }
+    ValidatePauseProjectResponseDto: {
+      message: string
     }
     ValidateQueryBody: {
       query: string
@@ -21506,15 +21613,12 @@ export interface operations {
     parameters: {
       query?: never
       header?: never
-      path: {
-        /** @description Project ref */
-        ref: string
-      }
+      path?: never
       cookie?: never
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestartProjectInfo']
+        'application/json': components['schemas']['RestartProjectBodyDto']
       }
     }
     responses: {
@@ -22040,11 +22144,14 @@ export interface operations {
       }
     }
     responses: {
+      /** @description Returns the created replication pipeline id. */
       201: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': components['schemas']['CreatePipelineResponse']
+        }
       }
       403: {
         headers: {
@@ -22244,11 +22351,14 @@ export interface operations {
       }
     }
     responses: {
+      /** @description Returns the created replication sink id. */
       201: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': components['schemas']['CreateSinkResponse']
+        }
       }
       403: {
         headers: {
@@ -24838,6 +24948,45 @@ export interface operations {
       }
     }
   }
+  'v1-bulk-update-functions': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Project ref */
+        ref: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BulkUpdateFunctionBody'][]
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BulkUpdateFunctionResponse']
+        }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Failed to update functions */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
   'v1-create-a-function': {
     parameters: {
       query?: {
@@ -24994,6 +25143,7 @@ export interface operations {
   'v1-deploy-a-function': {
     parameters: {
       query?: {
+        bundleOnly?: boolean
         slug?: string
       }
       header?: never
@@ -25014,7 +25164,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['FunctionResponse']
+          'application/json': components['schemas']['DeployFunctionResponse']
         }
       }
       403: {
@@ -25087,6 +25237,71 @@ export interface operations {
       }
       /** @description Failed to update health status. */
       500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  SystemProjectPauseController_pauseProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Project paused successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PauseProjectResponseDto']
+        }
+      }
+    }
+  }
+  SystemProjectPauseController_validatePauseProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ValidatePauseProjectResponseDto']
+        }
+      }
+      /** @description Project can be paused */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ValidatePauseProjectResponseDto']
+        }
+      }
+    }
+  }
+  SystemRestartController_restartProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      201: {
         headers: {
           [name: string]: unknown
         }
@@ -30769,15 +30984,12 @@ export interface operations {
     parameters: {
       query?: never
       header?: never
-      path: {
-        /** @description Project ref */
-        ref: string
-      }
+      path?: never
       cookie?: never
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestartProjectInfo']
+        'application/json': components['schemas']['RestartProjectBodyDto']
       }
     }
     responses: {
@@ -33461,6 +33673,45 @@ export interface operations {
       }
     }
   }
+  'v1-bulk-update-functions': {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Project ref */
+        ref: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BulkUpdateFunctionBody'][]
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['BulkUpdateFunctionResponse']
+        }
+      }
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Failed to update functions */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
   'v1-create-a-function': {
     parameters: {
       query?: {
@@ -33669,6 +33920,7 @@ export interface operations {
   'v1-deploy-a-function': {
     parameters: {
       query?: {
+        bundleOnly?: boolean
         slug?: string
       }
       header?: never
@@ -33689,7 +33941,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          'application/json': components['schemas']['FunctionResponse']
+          'application/json': components['schemas']['DeployFunctionResponse']
         }
       }
       403: {
