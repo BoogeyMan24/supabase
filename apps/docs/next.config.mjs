@@ -63,6 +63,7 @@ const nextConfig = {
         './content/troubleshooting/**/*',
         './examples/**/*',
       ],
+      '/llms.txt': ['./spec/**/*', './content/guides/**/*', './content/troubleshooting/**/*'],
       '/reference/**/*': ['./features/docs/generated/**/*', './docs/ref/**/*'],
     },
     serverComponentsExternalPackages: ['libpg-query'],
